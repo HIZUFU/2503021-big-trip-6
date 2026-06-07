@@ -4,6 +4,7 @@ import TripModel from './model/trip-model.js';
 import FilterModel from './model/filter-model.js';
 import TripApiService from './trip-api-service.js';
 import {UpdateType} from './const.js';
+import TripInfoPresenter from './presenter/trip-info-presenter.js';
 
 const END_POINT = 'https://21.objects.pages.academy/big-trip';
 const AUTHORIZATION = `Basic ${Math.random().toString(36).slice(2)}`;
@@ -11,6 +12,7 @@ const AUTHORIZATION = `Basic ${Math.random().toString(36).slice(2)}`;
 const filtersContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
 const newEventButton = document.querySelector('.trip-main__event-add-btn');
+const tripMainContainer = document.querySelector('.trip-main');
 
 const tripModel = new TripModel({
   tripApiService: new TripApiService(END_POINT, AUTHORIZATION),
@@ -25,6 +27,11 @@ const tripPresenter = new TripPresenter({
   newEventButton,
 });
 
+const tripInfoPresenter = new TripInfoPresenter({
+  tripMainContainer,
+  tripModel,
+});
+
 const filterPresenter = new FilterPresenter({
   filterContainer: filtersContainer,
   tripModel,
@@ -33,5 +40,6 @@ const filterPresenter = new FilterPresenter({
 
 filterPresenter.init();
 tripPresenter.init();
+tripInfoPresenter.init();
 
 tripModel.init(UpdateType.INIT);

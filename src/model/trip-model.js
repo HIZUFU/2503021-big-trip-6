@@ -4,13 +4,13 @@ export default class TripModel extends Observable {
   #points = [];
   #destinations = [];
   #offers = [];
+  #tripApiService = null;
+  #isLoading = true;
 
-  constructor({points, destinations, offers}) {
+  constructor({tripApiService}) {
     super();
 
-    this.#points = points;
-    this.#destinations = destinations;
-    this.#offers = offers;
+    this.#tripApiService = tripApiService;
   }
 
   get points() {
@@ -29,7 +29,32 @@ export default class TripModel extends Observable {
     return this.#offers;
   }
 
-  updatePoint(updateType, updatedPoint) {
+  get isLoading() {
+    return this.#isLoading;
+  }
+
+  async init(updateType) {
+    try {
+      const [points, destinations, offers] = await Promise.all([
+        this.#tripApiService.points,
+        this.#tripApiService.destinations,
+        this.#tripApiService.offers,
+      ]);
+
+      this.#points = points;
+      this.#destinations = destinations;
+      this.#offers = offers;
+    } catch (err) {
+      this.#points = [];
+      this.#destinations = [];
+      this.#offers = [];
+    }
+
+    this.#isLoading = false;
+    this._notify(updateType);
+  }
+
+  async updatePoint(updateType, updatedPoint) {
     const pointIndex = this.#points.findIndex(
       (point) => point.id === updatedPoint.id
     );
@@ -38,13 +63,15 @@ export default class TripModel extends Observable {
       throw new Error('Can not update unexisting point');
     }
 
+    const response = await this.#tripApiService.updatePoint(updatedPoint);
+
     this.#points = [
       ...this.#points.slice(0, pointIndex),
-      updatedPoint,
+      response,
       ...this.#points.slice(pointIndex + 1),
     ];
 
-    this._notify(updateType, updatedPoint);
+    this._notify(updateType, response);
   }
 
   addPoint(updateType, newPoint) {

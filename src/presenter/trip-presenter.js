@@ -12,6 +12,7 @@ import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
 import SortView from '../view/sort-view.js';
 import NoEventView from '../view/no-event-view.js';
+import LoadingView from '../view/loading-view.js';
 
 export default class TripPresenter {
   #tripEventsContainer = null;
@@ -24,6 +25,7 @@ export default class TripPresenter {
   #newEventPresenter = null;
   #sortComponent = null;
   #noEventComponent = null;
+  #loadingComponent = new LoadingView();
 
   constructor({tripEventsContainer, tripModel, filterModel, newEventButton}) {
     this.#tripEventsContainer = tripEventsContainer;
@@ -53,6 +55,11 @@ export default class TripPresenter {
   }
 
   #renderTrip() {
+    if (this.#tripModel.isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     const points = this.points;
 
     if (points.length === 0) {
@@ -62,6 +69,10 @@ export default class TripPresenter {
 
     this.#renderSort();
     this.#renderEventList(points);
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#tripEventsContainer);
   }
 
   #renderNoEvents() {
@@ -147,6 +158,7 @@ export default class TripPresenter {
 
     remove(this.#sortComponent);
     remove(this.#noEventComponent);
+    remove(this.#loadingComponent);
 
     this.#sortComponent = null;
     this.#noEventComponent = null;
@@ -168,6 +180,10 @@ export default class TripPresenter {
         break;
       case UpdateType.MAJOR:
         this.#currentSortType = SortType.DAY;
+        this.#clearTrip();
+        this.#renderTrip();
+        break;
+      case UpdateType.INIT:
         this.#clearTrip();
         this.#renderTrip();
         break;

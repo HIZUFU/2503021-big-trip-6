@@ -12,4 +12,10 @@ const NoEventMessage = {
   [FilterType.PAST]: 'There are no past events now',
 };
 
-export {FilterType, NoEventMessage};
+const SortType = {
+  DAY: 'day',
+  TIME: 'time',
+  PRICE: 'price',
+};
+
+export {FilterType, NoEventMessage, SortType};

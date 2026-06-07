@@ -35,10 +35,6 @@ export default class EventPresenter {
       (offer) => this.#point.offerIds.includes(offer.id)
     );
 
-    const availableOffers = this.#offers.filter(
-      (offer) => offer.type === this.#point.type
-    );
-
     this.#eventComponent = new EventView({
       point: this.#point,
       destination,
@@ -49,9 +45,8 @@ export default class EventPresenter {
 
     this.#eventEditComponent = new EventEditView({
       point: this.#point,
-      destination,
       destinations: this.#destinations,
-      availableOffers,
+      offers: this.#offers,
       onFormSubmit: this.#handleFormSubmit,
       onRollupClick: this.#handleRollupClick,
     });
@@ -106,7 +101,8 @@ export default class EventPresenter {
     this.#replaceEventToForm();
   };
 
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (updatedPoint) => {
+    this.#handleDataChange(updatedPoint);
     this.#replaceFormToEvent();
   };
 

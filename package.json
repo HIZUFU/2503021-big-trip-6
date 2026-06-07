@@ -4,15 +4,15 @@
   "private": true,
   "description": "Проект «Большое путешествие» от HTML Academy",
   "scripts": {
-  "lint": "eslint src/",
-  "build": "webpack --mode production",
-  "start": "webpack serve --mode development --open"
-},
-"browserslist": [
-  "last 2 versions",
-  "not dead",
-  "not ie <= 11"
-],
+    "lint": "eslint src/",
+    "build": "webpack --mode production",
+    "start": "webpack serve --mode development --open"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "not dead",
+    "not ie <= 11"
+  ],
   "devDependencies": {
     "@babel/core": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
@@ -31,7 +31,7 @@
     "node": "20"
   },
   "dependencies": {
-    "dayjs": "^1.11.7",
+    "dayjs": "^1.11.21",
     "flatpickr": "^4.6.13",
     "he": "^1.2.0"
   }

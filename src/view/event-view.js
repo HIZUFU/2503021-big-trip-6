@@ -1,29 +1,9 @@
 import AbstractView from '../framework/view/abstract-view.js';
-
-const humanizeEventDate = (date) =>
-  new Date(date).toLocaleDateString('en-US', {month: 'short', day: '2-digit'}).toUpperCase();
-
-const humanizeEventTime = (date) =>
-  new Date(date).toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'});
-
-const getDuration = (dateFrom, dateTo) => {
-  const startDate = new Date(dateFrom);
-  const endDate = new Date(dateTo);
-  const duration = endDate - startDate;
-  const minutes = Math.floor(duration / 60000);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-
-  if (days > 0) {
-    return `${String(days).padStart(2, '0')}D ${String(hours % 24).padStart(2, '0')}H ${String(minutes % 60).padStart(2, '0')}M`;
-  }
-
-  if (hours > 0) {
-    return `${String(hours).padStart(2, '0')}H ${String(minutes % 60).padStart(2, '0')}M`;
-  }
-
-  return `${String(minutes).padStart(2, '0')}M`;
-};
+import {
+  getDuration,
+  humanizeEventDate,
+  humanizeEventTime,
+} from '../utils/date.js';
 
 const createOfferTemplate = (offer) => (
   `<li class="event__offer">
@@ -35,26 +15,42 @@ const createOfferTemplate = (offer) => (
 
 function createEventTemplate({point, destination, selectedOffers}) {
   const favoriteClassName = point.isFavorite ? 'event__favorite-btn--active' : '';
-  const offersTemplate = selectedOffers.map((offer) => createOfferTemplate(offer)).join('');
+  const offersTemplate = selectedOffers
+    .map((offer) => createOfferTemplate(offer))
+    .join('');
 
   return (
     `<li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime="${point.dateFrom}">${humanizeEventDate(point.dateFrom)}</time>
+        <time class="event__date" datetime="${point.dateFrom}">
+          ${humanizeEventDate(point.dateFrom)}
+        </time>
 
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
+          <img
+            class="event__type-icon"
+            width="42"
+            height="42"
+            src="img/icons/${point.type}.png"
+            alt="Event type icon"
+          >
         </div>
 
         <h3 class="event__title">${point.type} ${destination.name}</h3>
 
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${point.dateFrom}">${humanizeEventTime(point.dateFrom)}</time>
+            <time class="event__start-time" datetime="${point.dateFrom}">
+              ${humanizeEventTime(point.dateFrom)}
+            </time>
             &mdash;
-            <time class="event__end-time" datetime="${point.dateTo}">${humanizeEventTime(point.dateTo)}</time>
+            <time class="event__end-time" datetime="${point.dateTo}">
+              ${humanizeEventTime(point.dateTo)}
+            </time>
           </p>
-          <p class="event__duration">${getDuration(point.dateFrom, point.dateTo)}</p>
+          <p class="event__duration">
+            ${getDuration(point.dateFrom, point.dateTo)}
+          </p>
         </div>
 
         <p class="event__price">

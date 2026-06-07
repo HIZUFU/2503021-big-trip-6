@@ -1,4 +1,4 @@
-import AbstractView from './abstract-view.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const EVENT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
@@ -155,17 +155,36 @@ export default class EventEditView extends AbstractView {
   #destination = null;
   #destinations = [];
   #availableOffers = [];
+  #handleFormSubmit = null;
+  #handleRollupClick = null;
 
-  constructor({point, destination, destinations, availableOffers}) {
+  constructor({
+    point,
+    destination,
+    destinations,
+    availableOffers,
+    onFormSubmit,
+    onRollupClick,
+  }) {
     super();
 
     this.#point = point;
     this.#destination = destination;
     this.#destinations = destinations;
     this.#availableOffers = availableOffers;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleRollupClick = onRollupClick;
+
+    this.element
+      .querySelector('form')
+      .addEventListener('submit', this.#formSubmitHandler);
+
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupClickHandler);
   }
 
-  getTemplate() {
+  get template() {
     return createEventEditTemplate({
       point: this.#point,
       destination: this.#destination,
@@ -173,4 +192,14 @@ export default class EventEditView extends AbstractView {
       availableOffers: this.#availableOffers,
     });
   }
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
+
+  #rollupClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupClick();
+  };
 }

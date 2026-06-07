@@ -1,4 +1,4 @@
-import AbstractView from './abstract-view.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const humanizeEventDate = (date) =>
   new Date(date).toLocaleDateString('en-US', {month: 'short', day: '2-digit'}).toUpperCase();
@@ -85,20 +85,31 @@ export default class EventView extends AbstractView {
   #point = null;
   #destination = null;
   #selectedOffers = [];
+  #handleEditClick = null;
 
-  constructor({point, destination, selectedOffers}) {
+  constructor({point, destination, selectedOffers, onEditClick}) {
     super();
 
     this.#point = point;
     this.#destination = destination;
     this.#selectedOffers = selectedOffers;
+    this.#handleEditClick = onEditClick;
+
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() {
+  get template() {
     return createEventTemplate({
       point: this.#point,
       destination: this.#destination,
       selectedOffers: this.#selectedOffers,
     });
   }
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 }

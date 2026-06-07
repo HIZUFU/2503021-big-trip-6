@@ -17,8 +17,9 @@ const EVENT_TYPES = [
 
 const capitalize = (value) => value[0].toUpperCase() + value.slice(1);
 
-const createEventTypeTemplate = (type, currentType) => {
+const createEventTypeTemplate = (type, currentType, isDisabled) => {
   const checked = type === currentType ? 'checked' : '';
+  const disabled = isDisabled ? 'disabled' : '';
 
   return (
     `<div class="event__type-item">
@@ -29,6 +30,7 @@ const createEventTypeTemplate = (type, currentType) => {
         name="event-type"
         value="${type}"
         ${checked}
+        ${disabled}
       >
       <label
         class="event__type-label event__type-label--${type}"
@@ -44,8 +46,9 @@ const createDestinationOptionTemplate = (destination) => (
   `<option value="${destination.name}"></option>`
 );
 
-const createAvailableOfferTemplate = (offer, selectedOfferIds) => {
+const createAvailableOfferTemplate = (offer, selectedOfferIds, isDisabled) => {
   const checked = selectedOfferIds.includes(offer.id) ? 'checked' : '';
+  const disabled = isDisabled ? 'disabled' : '';
 
   return (
     `<div class="event__offer-selector">
@@ -56,6 +59,7 @@ const createAvailableOfferTemplate = (offer, selectedOfferIds) => {
         name="event-offer-${offer.id}"
         value="${offer.id}"
         ${checked}
+        ${disabled}
       >
       <label class="event__offer-label" for="event-offer-${offer.id}">
         <span class="event__offer-title">${offer.title}</span>
@@ -70,7 +74,7 @@ const createDestinationPictureTemplate = (picture) => (
   `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
 );
 
-const createOffersSectionTemplate = (availableOffers, selectedOfferIds) => {
+const createOffersSectionTemplate = (availableOffers, selectedOfferIds, isDisabled) => {
   if (availableOffers.length === 0) {
     return '';
   }
@@ -81,7 +85,11 @@ const createOffersSectionTemplate = (availableOffers, selectedOfferIds) => {
 
       <div class="event__available-offers">
         ${availableOffers
-      .map((offer) => createAvailableOfferTemplate(offer, selectedOfferIds))
+      .map((offer) => createAvailableOfferTemplate(
+        offer,
+        selectedOfferIds,
+        isDisabled
+      ))
       .join('')}
       </div>
     </section>`
@@ -124,15 +132,19 @@ const createEventEditTemplate = ({point, destinations, offers}) => {
   const availableOffers = offers.filter((offer) => offer.type === point.type);
   const selectedOfferIds = point.offerIds ?? [];
 
+  const isDisabled = point.isDisabled ? 'disabled' : '';
+  const resetButtonText = point.isNew ? 'Cancel' : 'Delete';
+  const deleteButtonText = point.isDeleting ? 'Deleting...' : resetButtonText;
+  const saveButtonText = point.isSaving ? 'Saving...' : 'Save';
+
   const eventTypesTemplate = EVENT_TYPES
-    .map((type) => createEventTypeTemplate(type, point.type))
+    .map((type) => createEventTypeTemplate(type, point.type, point.isDisabled))
     .join('');
 
   const destinationOptionsTemplate = destinations
     .map((destination) => createDestinationOptionTemplate(destination))
     .join('');
 
-  const resetButtonText = point.isNew ? 'Cancel' : 'Delete';
   const destinationName = currentDestination ? currentDestination.name : '';
 
   return (
@@ -155,6 +167,7 @@ const createEventEditTemplate = ({point, destinations, offers}) => {
               class="event__type-toggle visually-hidden"
               id="event-type-toggle-1"
               type="checkbox"
+              ${isDisabled}
             >
 
             <div class="event__type-list">
@@ -180,6 +193,7 @@ const createEventEditTemplate = ({point, destinations, offers}) => {
               name="event-destination"
               value="${destinationName}"
               list="destination-list-1"
+              ${isDisabled}
             >
 
             <datalist id="destination-list-1">
@@ -195,6 +209,7 @@ const createEventEditTemplate = ({point, destinations, offers}) => {
               type="text"
               name="event-start-time"
               value="${humanizeEditFormDate(point.dateFrom)}"
+              ${isDisabled}
             >
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
@@ -204,6 +219,7 @@ const createEventEditTemplate = ({point, destinations, offers}) => {
               type="text"
               name="event-end-time"
               value="${humanizeEditFormDate(point.dateTo)}"
+              ${isDisabled}
             >
           </div>
 
@@ -218,20 +234,35 @@ const createEventEditTemplate = ({point, destinations, offers}) => {
               type="text"
               name="event-price"
               value="${point.basePrice}"
+              ${isDisabled}
             >
           </div>
 
-          <button class="event__save-btn btn btn--blue" type="submit">
-            Save
+          <button
+            class="event__save-btn btn btn--blue"
+            type="submit"
+            ${isDisabled}
+          >
+            ${saveButtonText}
           </button>
-          <button class="event__reset-btn" type="reset">${resetButtonText}</button>
-          <button class="event__rollup-btn" type="button">
+          <button
+            class="event__reset-btn"
+            type="reset"
+            ${isDisabled}
+          >
+            ${deleteButtonText}
+          </button>
+          <button class="event__rollup-btn" type="button" ${isDisabled}>
             <span class="visually-hidden">Open event</span>
           </button>
         </header>
 
         <section class="event__details">
-          ${createOffersSectionTemplate(availableOffers, selectedOfferIds)}
+          ${createOffersSectionTemplate(
+      availableOffers,
+      selectedOfferIds,
+      point.isDisabled
+    )}
           ${createDestinationSectionTemplate(currentDestination)}
         </section>
       </form>
@@ -288,6 +319,10 @@ export default class EventEditView extends AbstractStatefulView {
       this.#datepickerEnd.destroy();
       this.#datepickerEnd = null;
     }
+  }
+
+  reset(point) {
+    this.updateElement(EventEditView.parsePointToState(point));
   }
 
   _restoreHandlers() {
@@ -441,6 +476,9 @@ export default class EventEditView extends AbstractStatefulView {
   static parsePointToState(point) {
     return {
       ...point,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
     };
   }
 
@@ -450,6 +488,9 @@ export default class EventEditView extends AbstractStatefulView {
     };
 
     delete point.isNew;
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
 
     return point;
   }

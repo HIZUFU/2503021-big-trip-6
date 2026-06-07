@@ -3,7 +3,6 @@ import {UpdateType, UserAction} from '../const.js';
 import EventEditView from '../view/event-edit-view.js';
 
 const createDefaultPoint = () => ({
-  id: `point-${Date.now()}`,
   type: 'flight',
   destinationId: null,
   offerIds: [],
@@ -62,6 +61,24 @@ export default class NewEventPresenter {
     this.#eventEditComponent = null;
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+  }
+
+  setSaving() {
+    this.#eventEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#eventEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+      });
+    };
+
+    this.#eventEditComponent.shake(resetFormState);
   }
 
   #handleFormSubmit = (point) => {

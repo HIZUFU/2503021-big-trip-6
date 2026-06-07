@@ -69,6 +69,7 @@ export default class EventPresenter {
 
   resetView() {
     if (this.#container.contains(this.#eventEditComponent.element)) {
+      this.#eventEditComponent.reset(this.#point);
       this.#replaceFormToEvent();
     }
   }
@@ -78,6 +79,42 @@ export default class EventPresenter {
     remove(this.#eventEditComponent);
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+  }
+
+  setSaving() {
+    if (this.#container.contains(this.#eventEditComponent.element)) {
+      this.#eventEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#container.contains(this.#eventEditComponent.element)) {
+      this.#eventEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#eventEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    if (this.#container.contains(this.#eventEditComponent.element)) {
+      this.#eventEditComponent.shake(resetFormState);
+    }
+
+    if (this.#container.contains(this.#eventComponent.element)) {
+      this.#eventComponent.shake();
+    }
   }
 
   #replaceEventToForm() {
@@ -94,6 +131,7 @@ export default class EventPresenter {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
 
+      this.#eventEditComponent.reset(this.#point);
       this.#replaceFormToEvent();
     }
   };
@@ -112,6 +150,7 @@ export default class EventPresenter {
   };
 
   #handleRollupClick = () => {
+    this.#eventEditComponent.reset(this.#point);
     this.#replaceFormToEvent();
   };
 

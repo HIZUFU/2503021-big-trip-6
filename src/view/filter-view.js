@@ -1,4 +1,4 @@
-import AbstractView from './abstract-view.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createFilterTemplate() {
   return (
@@ -29,7 +29,7 @@ function createFilterTemplate() {
 }
 
 export default class FilterView extends AbstractView {
-  getTemplate() {
+  get template() {
     return createFilterTemplate();
   }
 }

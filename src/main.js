@@ -2,16 +2,18 @@ import TripPresenter from './presenter/trip-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import TripModel from './model/trip-model.js';
 import FilterModel from './model/filter-model.js';
-import {destinations, offers, points} from './mock/trip-data.js';
+import TripApiService from './trip-api-service.js';
+import {UpdateType} from './const.js';
+
+const END_POINT = 'https://21.objects.pages.academy/big-trip';
+const AUTHORIZATION = `Basic ${Math.random().toString(36).slice(2)}`;
 
 const filtersContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
 const newEventButton = document.querySelector('.trip-main__event-add-btn');
 
 const tripModel = new TripModel({
-  points,
-  destinations,
-  offers,
+  tripApiService: new TripApiService(END_POINT, AUTHORIZATION),
 });
 
 const filterModel = new FilterModel();
@@ -31,3 +33,5 @@ const filterPresenter = new FilterPresenter({
 
 filterPresenter.init();
 tripPresenter.init();
+
+tripModel.init(UpdateType.INIT);

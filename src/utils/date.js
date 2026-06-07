@@ -16,8 +16,13 @@ const humanizeEventDate = (date) =>
 const humanizeEventTime = (date) =>
   dayjs(date).format(DateFormat.EVENT_TIME);
 
-const humanizeEditFormDate = (date) =>
-  dayjs(date).format(DateFormat.EDIT_FORM);
+const humanizeEditFormDate = (date) => {
+  if (!date) {
+    return '';
+  }
+
+  return dayjs(date).format(DateFormat.EDIT_FORM);
+};
 
 const getDuration = (dateFrom, dateTo) => {
   const diff = dayjs(dateTo).diff(dayjs(dateFrom));

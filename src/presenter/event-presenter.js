@@ -1,4 +1,5 @@
-import {render, replace} from '../framework/render.js';
+import {remove, render, replace} from '../framework/render.js';
+import {UpdateType, UserAction} from '../const.js';
 import EventEditView from '../view/event-edit-view.js';
 import EventView from '../view/event-view.js';
 
@@ -49,6 +50,7 @@ export default class EventPresenter {
       offers: this.#offers,
       onFormSubmit: this.#handleFormSubmit,
       onRollupClick: this.#handleRollupClick,
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
@@ -72,10 +74,10 @@ export default class EventPresenter {
   }
 
   destroy() {
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    remove(this.#eventComponent);
+    remove(this.#eventEditComponent);
 
-    this.#eventComponent = null;
-    this.#eventEditComponent = null;
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
   #replaceEventToForm() {
@@ -102,8 +104,11 @@ export default class EventPresenter {
   };
 
   #handleFormSubmit = (updatedPoint) => {
-    this.#handleDataChange(updatedPoint);
-    this.#replaceFormToEvent();
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      updatedPoint
+    );
   };
 
   #handleRollupClick = () => {
@@ -111,6 +116,18 @@ export default class EventPresenter {
   };
 
   #handleFavoriteClick = (updatedPoint) => {
-    this.#handleDataChange(updatedPoint);
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.PATCH,
+      updatedPoint
+    );
+  };
+
+  #handleDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point
+    );
   };
 }
